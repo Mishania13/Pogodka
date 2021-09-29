@@ -49,7 +49,6 @@ struct NetworkManager {
 
     static private func parseJSON<T: Codable>(data: Data, responseType: T.Type) -> T? {
         let decoder = JSONDecoder()
-
         if let json = try? decoder.decode(T.self, from: data) {
             return json
         }

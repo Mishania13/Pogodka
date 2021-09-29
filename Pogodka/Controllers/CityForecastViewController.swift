@@ -118,7 +118,7 @@ extension CityForecastViewController: UITableViewDataSource, UITableViewDelegate
                          temperature: Int(forecast?.daily?[indexPath.row].temp?.day?.rounded() ?? 0),
                          iconName: forecast?.daily?[indexPath.row].weather?.first?.icon ?? "",
                          imageLoader: imageLoader)
-
+        cell.selectionStyle = .none
         return cell
     }
 

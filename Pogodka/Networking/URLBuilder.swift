@@ -27,6 +27,7 @@ class URLBuilder {
 }
 
 enum BaseURLs: String {
+    
     case scheme = "https"
     case baseUrl = "api.openweathermap.org"
     case mainPath = "/data/2.5/"

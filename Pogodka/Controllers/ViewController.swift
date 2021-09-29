@@ -20,16 +20,17 @@ class ViewController: UIViewController {
     @IBOutlet private var mainCityView: UIView!
 
     private let locationManager = CLLocationManager()
-    private let refreshControl = UIRefreshControl()
     private let imageLoader = ImageLoaderManager()
-    private let tableViewCellIdentifire = "CurrentWeatherTableViewCell"
+    private let storeManger = StoreManager()
 
+    private let refreshControl = UIRefreshControl()
     private var lastUpdateTime = Date()
+    private var autoUpdateTimer: Timer!
 
     private var cityWeatherByName: CurrentWeatherModel?
     private var citiesWeather: [CurrentWeatherModel] = []
     private var mainCityName: String?
-    private var citiesNames: [String] = ["Киев"]
+    private let tableViewCellIdentifire = "CurrentWeatherTableViewCell"
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +39,8 @@ class ViewController: UIViewController {
         temperatureLabel.text = nil
         activitiIndicator.hidesWhenStopped = true
 
-        tableView.register(UINib(nibName: tableViewCellIdentifire, bundle: nil), forCellReuseIdentifier: tableViewCellIdentifire)
+        tableView.register(UINib(nibName: tableViewCellIdentifire, bundle: nil),
+                                forCellReuseIdentifier: tableViewCellIdentifire)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableFooterView = UIView()
@@ -65,7 +67,7 @@ class ViewController: UIViewController {
     }
 
     private func loadCitiesInfo() {
-        for city in citiesNames {
+        for city in storeManger.getCitiesList() {
             DispatchQueue.global().sync {
                 addCityWeather(cityName: city)
             }
@@ -73,7 +75,6 @@ class ViewController: UIViewController {
     }
 
     private func addCityWeather(cityName: String, needLoadingView: Bool = false) {
-
         if needLoadingView {
             DispatchQueue.main.async {
                 self.showLoading()
@@ -90,8 +91,8 @@ class ViewController: UIViewController {
                 self.lastUpdateTime = Date()
                 let data = try result.get()
                 if let name = data.name,
-                   !self.citiesNames.contains(name) {
-                    self.citiesNames.append(data.name ?? "")
+                   !self.storeManger.getCitiesList().contains(name) {
+                        self.storeManger.addCity(name: name)
                 }
                 self.citiesWeather.append(data)
                 DispatchQueue.main.async {
@@ -110,7 +111,6 @@ class ViewController: UIViewController {
     }
 
     private func mainCitySetting(cityData: CurrentWeatherModel) {
-
         DispatchQueue.main.async {
             self.mainCityName = cityData.name
             self.changeMainCityViewState(isOpen: true, animated: true)
@@ -146,7 +146,13 @@ class ViewController: UIViewController {
         alert.addTextField()
         let okAction = UIAlertAction(title: "Ок", style: .default) { _ in
             if let txtField = alert.textFields?.first, let text = txtField.text, text.count >= 2 {
+                DispatchQueue.main.async {
+                    self.showLoading()
+                }
                 NetworkManager.fetchingWeather(endpoint: Endpoints.cityCurrentWeather(city: text), fetchType: .weather, reusltType: CurrentWeatherModel.self) { result in
+                    DispatchQueue.main.async {
+                        self.hideLoading()
+                    }
                     do {
                         let data = try result.get()
                         DispatchQueue.main.async {
@@ -191,13 +197,16 @@ class ViewController: UIViewController {
             self.view.layoutIfNeeded()
         }
     }
-    private func removeCityFromList(at: Int) {
-        let city = citiesWeather[at].name
-        citiesWeather.remove(at: at)
 
-        for index in citiesWeather.indices where citiesNames[index] == city {
-            citiesNames.remove(at: index)
-            return
+    private func removeCityFromList(at: Int) {
+        citiesWeather.remove(at: at)
+        storeManger.deleteCity(at: at)
+    }
+
+    private func autoUpdateData() {
+        autoUpdateTimer = Timer.scheduledTimer(withTimeInterval: 300.0, repeats: true) { timer in
+            self.citiesWeather = []
+            self.loadCitiesInfo()
         }
     }
 
@@ -205,6 +214,8 @@ class ViewController: UIViewController {
         if lastUpdateTime.allowUpdate(updateIntervalSec: 40) {
             citiesWeather = []
             loadCitiesInfo()
+            autoUpdateTimer.invalidate()
+            autoUpdateData()
         } else {
             refreshControl.endRefreshing()
         }
@@ -237,6 +248,10 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             tableView.deleteRows(at: [indexPath], with: .left)
         }
     }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        true
+    }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -253,7 +268,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 extension ViewController: UISearchBarDelegate {
 
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        if let text = searchBar.text, text.count > 2, !citiesNames.map({$0.capitalized}).contains(text.capitalized) {
+        if let text = searchBar.text, text.count > 2, !storeManger.getCitiesList().map({$0.capitalized}).contains(text.capitalized) {
             addCityWeather(cityName: text, needLoadingView: true)
             searchBar.text = nil
         }
@@ -286,6 +301,10 @@ extension ViewController: CLLocationManagerDelegate {
                 self.useCustomMainCity()
             }
         }
+    }
+
+    func locationManagerDidResumeLocationUpdates(_ manager: CLLocationManager) {
+        print("resume")
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

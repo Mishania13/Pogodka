@@ -65,7 +65,6 @@
                                         <constraints>
                                             <constraint firstItem="3G0-Qt-GXQ" firstAttribute="top" secondItem="wUf-hy-IAe" secondAttribute="top" constant="-35" id="6cN-mH-uh1"/>
                                             <constraint firstAttribute="trailing" secondItem="1vg-cK-QPG" secondAttribute="trailing" constant="20" id="8ht-Tm-iS1"/>
-                                            <constraint firstItem="3G0-Qt-GXQ" firstAttribute="height" secondItem="wUf-hy-IAe" secondAttribute="height" multiplier="0.9" priority="999" id="M4F-xc-FUB"/>
                                             <constraint firstItem="3G0-Qt-GXQ" firstAttribute="leading" secondItem="wUf-hy-IAe" secondAttribute="leading" id="Myw-bG-aJb"/>
                                             <constraint firstItem="1vg-cK-QPG" firstAttribute="leading" secondItem="3G0-Qt-GXQ" secondAttribute="trailing" constant="20" id="jIX-N3-lnM"/>
                                             <constraint firstAttribute="bottom" secondItem="3G0-Qt-GXQ" secondAttribute="bottom" constant="12" id="rGz-8k-si6"/>
@@ -78,7 +77,7 @@
                                 <constraints>
                                     <constraint firstItem="AGb-nh-hol" firstAttribute="centerY" secondItem="tCn-bv-yji" secondAttribute="centerY" id="1HR-YH-DLM"/>
                                     <constraint firstItem="AGb-nh-hol" firstAttribute="centerX" secondItem="tCn-bv-yji" secondAttribute="centerX" id="6Sm-eX-01u"/>
-                                    <constraint firstItem="hMw-TE-yDp" firstAttribute="top" secondItem="tCn-bv-yji" secondAttribute="top" constant="15" id="8rf-oc-t8Y"/>
+                                    <constraint firstItem="hMw-TE-yDp" firstAttribute="top" secondItem="tCn-bv-yji" secondAttribute="top" priority="999" constant="15" id="8rf-oc-t8Y"/>
                                     <constraint firstItem="hMw-TE-yDp" firstAttribute="leading" secondItem="tCn-bv-yji" secondAttribute="leading" id="ACR-24-VIc"/>
                                     <constraint firstAttribute="trailing" secondItem="wUf-hy-IAe" secondAttribute="trailing" id="IVB-eQ-BjV"/>
                                     <constraint firstAttribute="trailing" secondItem="hMw-TE-yDp" secondAttribute="trailing" id="KkI-tW-Q5q"/>

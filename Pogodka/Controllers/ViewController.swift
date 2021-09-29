@@ -61,8 +61,8 @@ class ViewController: UIViewController {
         self.title = "Погода сейчас"
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
         changeMainCityViewState(isOpen: mainCityName != nil)
     }
 
